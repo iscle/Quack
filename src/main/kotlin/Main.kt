@@ -1,48 +1,54 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.window.AwtWindow
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import java.awt.FileDialog
+import com.beust.jcommander.JCommander
+import component.ExitDialog
+import component.LoadFileDialog
+import java.io.File
 
 @Composable
 @Preview
 fun App(
+    args: Array<String>,
     window: ComposeWindow,
 ) {
     MaterialTheme {
         var openFileDialog by remember { mutableStateOf(false) }
-        var selectedFile by remember { mutableStateOf<String?>(null) }
+        var selectedFile by remember { mutableStateOf<File?>(null) }
 
-        Button(onClick = {
-            openFileDialog = true
-        }) {
-            Text(if (selectedFile == null) "Open file" else "Selected file: $selectedFile")
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Button(onClick = {
+                openFileDialog = true
+            }) {
+                Text(if (selectedFile == null) "Open file" else "Selected file: ${selectedFile!!.name}")
+            }
         }
 
         if (openFileDialog) {
-            AwtWindow(
-                create = {
-                    object : FileDialog(window, "Select file", LOAD) {
-                        override fun setVisible(visible: Boolean) {
-                            super.setVisible(visible)
-                            if (visible) {
-                                openFileDialog = false
-                                selectedFile = file
-                            }
-                        }
-                    }
+            LoadFileDialog(
+                frame = window,
+                title = "Open file",
+                onFilesSelected = { files ->
+                    selectedFile = files.firstOrNull()
+                    openFileDialog = false
                 },
-                dispose = FileDialog::dispose,
             )
         }
     }
@@ -67,14 +73,46 @@ private fun FrameWindowScope.setWindowIcon() {
     }
 }
 
-fun main() = application {
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "Quack",
-    ) {
-        setWindowIcon()
-        App(
-            window = window,
-        )
+private fun parseQuackArgs(args: Array<String>): QuackArgs {
+    val quackArgs = QuackArgs()
+
+    JCommander.newBuilder()
+        .addObject(quackArgs)
+        .build()
+        .parse(*args)
+
+    return quackArgs
+}
+
+fun main(args: Array<String>) {
+    val quackArgs = parseQuackArgs(args)
+
+    Settings.init()
+    Localization.init(Settings.getSelectedLocale())
+
+    application {
+        var showExitDialog by remember { mutableStateOf(false) }
+        Window(
+            onCloseRequest = {
+                showExitDialog = true
+            },
+            title = Localization.get("app_name"),
+        ) {
+            setWindowIcon()
+
+//        App(
+//            args = args,
+//            window = window,
+//        )
+
+            WelcomeScreen()
+
+            if (showExitDialog) {
+                ExitDialog(
+                    onConfirm = ::exitApplication,
+                    onDismiss = { showExitDialog = false },
+                )
+            }
+        }
     }
 }

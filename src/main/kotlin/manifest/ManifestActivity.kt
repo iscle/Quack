@@ -1,4 +1,6 @@
-data class ManifestService(
+package manifest
+
+data class ManifestActivity(
     val name: String,
     val permission: String?,
     val intentFilters: List<ManifestIntentFilter>,

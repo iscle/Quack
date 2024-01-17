@@ -1,3 +1,5 @@
+package manifest
+
 data class ManifestIntentFilter(
     val actions: List<String>,
     val categories: List<String>,

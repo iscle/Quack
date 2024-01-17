@@ -1,3 +1,5 @@
+package manifest
+
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.InputStream
@@ -65,11 +67,13 @@ class AndroidManifestParser {
                 val permission = activityElement.attributes.getNamedItem("android:permission")?.nodeValue
                 val intentFilters = getElementIntentFilters(activityElement)
 
-                activities.add(ManifestActivity(
+                activities.add(
+                    ManifestActivity(
                     name = activityName,
                     permission = permission,
                     intentFilters = intentFilters,
-                ))
+                )
+                )
             } else {
                 println("Invalid activity element at index $i")
             }
@@ -84,11 +88,13 @@ class AndroidManifestParser {
                 val permission = serviceElement.attributes.getNamedItem("android:permission")?.nodeValue
                 val intentFilters = getElementIntentFilters(serviceElement)
 
-                services.add(ManifestService(
+                services.add(
+                    ManifestService(
                     name = serviceName,
                     permission = permission,
                     intentFilters = intentFilters,
-                ))
+                )
+                )
             } else {
                 println("Invalid service element at index $i")
             }
@@ -103,11 +109,13 @@ class AndroidManifestParser {
                 val permission = receiverElement.attributes.getNamedItem("android:permission")?.nodeValue
                 val intentFilters = getElementIntentFilters(receiverElement)
 
-                receivers.add(ManifestReceiver(
+                receivers.add(
+                    ManifestReceiver(
                     name = receiverName,
                     permission = permission,
                     intentFilters = intentFilters,
-                ))
+                )
+                )
             } else {
                 println("Invalid receiver element at index $i")
             }
@@ -163,10 +171,12 @@ class AndroidManifestParser {
                 }
             }
 
-            intentFilters.add(ManifestIntentFilter(
+            intentFilters.add(
+                ManifestIntentFilter(
                 actions = actions,
                 categories = categories,
-            ))
+            )
+            )
         }
 
         return intentFilters

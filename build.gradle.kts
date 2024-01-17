@@ -20,6 +20,8 @@ dependencies {
     // (in a separate module for demo project and in testMain).
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
+    implementation("org.jcommander:jcommander:1.83")
+    implementation("com.fifesoft:rsyntaxtextarea:3.3.4")
 }
 
 compose.desktop {
