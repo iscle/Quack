@@ -1,8 +1,4 @@
-package manifest
-
-import manifest.ManifestActivity
-import manifest.ManifestReceiver
-import manifest.ManifestService
+package me.iscle.quack.manifest
 
 data class ParsedAndroidManifest(
     val packageName: String,

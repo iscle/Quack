@@ -1,4 +1,4 @@
-package component
+package me.iscle.quack.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.AwtWindow
@@ -14,7 +14,7 @@ fun LoadFileDialog(
     onFilesSelected: (Array<File>) -> Unit,
 ) {
     AwtWindow(
-        create= {
+        create = {
             object : FileDialog(frame, title, LOAD) {
                 override fun setVisible(b: Boolean) {
                     super.setVisible(b)

@@ -1,3 +1,5 @@
+package me.iscle.quack
+
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.converters.FileConverter
 import java.io.File

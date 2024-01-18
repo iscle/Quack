@@ -1,3 +1,5 @@
+package me.iscle.quack
+
 import java.io.File
 import java.util.Properties
 

@@ -22,6 +22,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation("org.jcommander:jcommander:1.83")
     implementation("com.fifesoft:rsyntaxtextarea:3.3.4")
+    implementation("com.squareup.moshi:moshi:1.14.0")
 }
 
 compose.desktop {

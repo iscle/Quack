@@ -1,4 +1,4 @@
-package manifest
+package me.iscle.quack.manifest
 
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -14,7 +14,7 @@ class AndroidManifestParser {
             documentElement.normalize()
         }
 
-        val manifestElement = document.getElementsByTagName("manifest").item(0)
+        val manifestElement = document.getElementsByTagName("me/iscle/quack/manifest/quack/manifest").item(0)
         if (manifestElement == null) {
             println("Manifest element not found")
             return null
