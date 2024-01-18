@@ -1,8 +1,11 @@
 package me.iscle.quack
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.TextField
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 @Composable
@@ -15,23 +18,21 @@ fun OpenedFileWindow(
         title = "${file.name} - ${Localization.get("app_name")}",
     ) {
         Column {
-            var text by remember { mutableStateOf("Text 1") }
-            TextField(
-                value = text,
-                onValueChange = { text = it },
-            )
+            Row {
+                var sha256 by remember { mutableStateOf("") }
+                LaunchedEffect(file) {
+                    withContext(Dispatchers.IO) {
+                        sha256 = Sha256.ofFile(file)
+                    }
+                }
 
-            var text2 by remember { mutableStateOf("Text 2") }
-            TextField(
-                value = text2,
-                onValueChange = { text2 = it },
-            )
-
-            var text3 by remember { mutableStateOf("Text 3") }
-            TextField(
-                value = text3,
-                onValueChange = { text3 = it },
-            )
+                BasicTextField(
+                    value = "File name: ${file.name}\n" +
+                            "SHA256: $sha256",
+                    onValueChange = {},
+                    readOnly = true,
+                )
+            }
         }
     }
 }

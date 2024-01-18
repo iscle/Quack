@@ -10,15 +10,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.ui.graphics.toAwtImage
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.window.FrameWindowScope
-import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.beust.jcommander.JCommander
-import kotlinx.coroutines.launch
 import me.iscle.quack.component.ExitDialog
 import me.iscle.quack.component.LoadFileDialog
 import java.io.File
@@ -76,11 +69,7 @@ fun main(args: Array<String>) {
 
     application {
         var closeRequested by remember { mutableStateOf(false) }
-        var openedFiles = remember { mutableStateListOf<File>(
-            File("/home/iscle/Downloads/Adif_2.0.4_Apkpure.apk"),
-            File("/home/iscle/Downloads/Magisk.v26.3.apk"),
-            File("/home/iscle/Downloads/AnyDana-A 3.0_3.0.16_Apkpure.apk"),
-        ) }
+        var openedFiles = remember { mutableStateListOf<File>() }
 
         var showWelcomeWindow by remember { mutableStateOf(true) }
         if (showWelcomeWindow) {
