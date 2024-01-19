@@ -9,12 +9,15 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class AndroidManifestParser {
     fun parse(inputStream: InputStream): ParsedAndroidManifest? {
+        val manifest = inputStream.readAllBytes().decodeToString()
+        println(manifest)
+        return null
         val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val document = builder.parse(inputStream).apply {
             documentElement.normalize()
         }
 
-        val manifestElement = document.getElementsByTagName("me/iscle/quack/manifest/quack/manifest").item(0)
+        val manifestElement = document.getElementsByTagName("manifest").item(0)
         if (manifestElement == null) {
             println("Manifest element not found")
             return null
@@ -131,6 +134,18 @@ class AndroidManifestParser {
             services = services,
             receivers = receivers,
         )
+    }
+
+    private fun parsePlainText(): ParsedAndroidManifest {
+        TODO()
+    }
+
+    private fun parseBinary(): ParsedAndroidManifest {
+        TODO()
+    }
+
+    private fun parseProto(): ParsedAndroidManifest {
+        TODO()
     }
 
     private fun getApplicationSubclass(packageName: String, application: Node): String? {
