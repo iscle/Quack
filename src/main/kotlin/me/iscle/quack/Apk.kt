@@ -10,6 +10,10 @@ import org.jetbrains.skia.Image
 import java.io.File
 import java.util.zip.ZipFile
 
+private const val APK_RESOURCE_TABLE_PATH = "resources.arsc"
+private const val PROTO_RESOURCE_TABLE_PATH = "resources.pb"
+private const val ANDROID_MANIFEST_PATH = "AndroidManifest.xml"
+
 class Apk(
     private val file: File,
 ) {
@@ -49,5 +53,11 @@ class Apk(
 
     fun getLabel(): String {
         return "Adif"
+    }
+
+    enum class Format {
+        Unknown,
+        Binary,
+        Proto,
     }
 }

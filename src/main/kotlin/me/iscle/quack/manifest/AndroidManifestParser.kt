@@ -6,6 +6,7 @@ import java.io.InputStream
 import javax.xml.parsers.DocumentBuilderFactory
 
 // https://developer.android.com/guide/topics/manifest/manifest-intro
+// https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/tools/aapt2/
 
 class AndroidManifestParser {
     fun parse(inputStream: InputStream): ParsedAndroidManifest? {
