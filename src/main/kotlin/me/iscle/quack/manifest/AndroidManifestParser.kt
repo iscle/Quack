@@ -1,5 +1,6 @@
 package me.iscle.quack.manifest
 
+import me.iscle.quack.BinaryXmlResourceParser
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.InputStream
@@ -10,6 +11,8 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class AndroidManifestParser {
     fun parse(inputStream: InputStream): ParsedAndroidManifest? {
+        BinaryXmlResourceParser().parse(inputStream)
+        return null
         val manifest = inputStream.readAllBytes().decodeToString()
         println(manifest)
         return null
