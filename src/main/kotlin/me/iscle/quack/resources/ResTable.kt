@@ -1,11 +1,6 @@
 package me.iscle.quack.resources
 
-import me.iscle.quack.getUInt
-import me.iscle.quack.readUInt
-import me.iscle.quack.readUtf16String
-import java.io.InputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import me.iscle.quack.InputStreamByteBuffer
 
 class ResTable {
 
@@ -16,7 +11,7 @@ class ResTable {
         val packageCount: UInt, // uint32_t
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): Header {
+            fun parse(buffer: InputStreamByteBuffer): Header {
                 val header = ResChunk.Header.parse(buffer)
                 val packageCount = buffer.getUInt()
                 return Header(header, packageCount)
@@ -54,7 +49,7 @@ class ResTable {
         typeIdOffset: UInt, // uint32_t
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): Package {
+            fun parse(buffer: InputStreamByteBuffer): Package {
                 val header = ResChunk.Header.parse(buffer)
                 val id = buffer.getUInt()
                 val name = "buffer.getUtf16String()" // TODO

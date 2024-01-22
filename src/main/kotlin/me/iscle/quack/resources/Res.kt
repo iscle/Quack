@@ -1,9 +1,6 @@
 package me.iscle.quack.resources
 
-import me.iscle.quack.*
-import java.io.InputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import me.iscle.quack.InputStreamByteBuffer
 
 // The 'data' is either 0 or 1, specifying this resource is either
 // undefined or empty, respectively.
@@ -126,7 +123,7 @@ class Res {
         val data: UInt,
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): Value {
+            fun parse(buffer: InputStreamByteBuffer): Value {
                 val size = buffer.getUShort()
                 val res0 = buffer.getUByte()
                 val dataType = buffer.getUByte()

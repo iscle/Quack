@@ -4,52 +4,75 @@ import me.iscle.quack.resources.ResChunk
 import me.iscle.quack.resources.ResStringPool
 import me.iscle.quack.resources.ResXMLTree
 import java.io.InputStream
-import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 class BinaryXmlResourceParser {
     fun parse(input: InputStream) {
-        val buffer = let {
-            val headerBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN)
-            if (input.read(headerBuffer.array()) != headerBuffer.capacity()) {
-                throw Exception("Failed to read XML header")
-            }
-            val header = ResXMLTree.Header.parse(headerBuffer)
-            if (header.header.type != ResChunk.Header.RES_XML_TYPE
-                || header.header.headerSize != 8.toUShort()) {
-                throw Exception("Invalid XML header")
-            }
+        val buffer = InputStreamByteBuffer(
+            input = input,
+            order = ByteOrder.LITTLE_ENDIAN
+        )
 
-            val buffer = ByteBuffer.allocate(header.header.size.toInt()).order(ByteOrder.LITTLE_ENDIAN)
-            System.arraycopy(headerBuffer.array(), 0, buffer.array(), 0, headerBuffer.capacity())
-            if (input.read(buffer.array(), headerBuffer.capacity(), buffer.capacity() - headerBuffer.capacity()) != buffer.capacity() - headerBuffer.capacity()) {
-                throw Exception("Failed to read XML")
-            }
-            buffer
-        }
-
-        val header = ResXMLTree.Header.parse(buffer)
-        while (buffer.position() < header.header.size.toInt()) {
+        val header = ResChunk.Header.parse(buffer)
+        buffer.readBytes((header.size - header.headerSize).toInt())
+        while (buffer.position() < header.size.toInt()) {
+            val currentPosition = buffer.position()
+            buffer.mark()
             val chunkHeader = ResChunk.Header.parse(buffer)
-            buffer.position(buffer.position() - 8)
-            val nextPos = buffer.position() + chunkHeader.size.toInt()
+            val nextPosition = currentPosition + chunkHeader.size.toInt()
 
             when {
                 chunkHeader.type == ResChunk.Header.RES_STRING_POOL_TYPE -> {
-                    buffer.position(buffer.position() - 8)
+                    buffer.reset()
                     val stringPoolHeader = ResStringPool.Header.parse(buffer)
-                    println(stringPoolHeader.toString())
+
+                    val isUtf8 = stringPoolHeader.flags and ResStringPool.Header.UTF8_FLAG == ResStringPool.Header.UTF8_FLAG
+                    val charSize = if (isUtf8) 1u else 2u
+                    var stringPoolSize = if (stringPoolHeader.styleCount == 0u) {
+                        stringPoolHeader.header.size - stringPoolHeader.stringsStart
+                    } else {
+                        stringPoolHeader.stylesStart - stringPoolHeader.stringsStart
+                    } / charSize
+                    println("String pool size: $stringPoolSize")
                 }
                 chunkHeader.type == ResChunk.Header.RES_XML_RESOURCE_MAP_TYPE -> {
-                    println("RES_XML_RESOURCE_MAP_TYPE")
+                    val numResIds = (chunkHeader.size - chunkHeader.headerSize) / 4u // uint32_t
+                    val resIds = IntArray(numResIds.toInt())
+                    buffer.get(resIds)
                 }
                 chunkHeader.type >= ResChunk.Header.RES_XML_FIRST_CHUNK_TYPE
                         && chunkHeader.type <= ResChunk.Header.RES_XML_LAST_CHUNK_TYPE -> {
-                    println("RES_XML_*_TYPE")
+                    buffer.reset()
+                    val resXmlTreeNode = ResXMLTree.Node.parse(buffer)
+                    when (resXmlTreeNode.header.type) {
+                        ResChunk.Header.RES_XML_START_NAMESPACE_TYPE -> {
+                            val namespaceExt = ResXMLTree.NamespaceExt.parse(buffer)
+                            println(namespaceExt)
+                        }
+                        ResChunk.Header.RES_XML_END_NAMESPACE_TYPE -> {
+                            val namespaceExt = ResXMLTree.NamespaceExt.parse(buffer)
+                            println(namespaceExt)
+                        }
+                        ResChunk.Header.RES_XML_START_ELEMENT_TYPE -> {
+                            val attrExt = ResXMLTree.AttrExt.parse(buffer)
+                            println(attrExt)
+                        }
+                        ResChunk.Header.RES_XML_END_ELEMENT_TYPE -> {
+                            val endElementExt = ResXMLTree.EndElementExt.parse(buffer)
+                            println(endElementExt)
+                        }
+                        ResChunk.Header.RES_XML_CDATA_TYPE -> {
+                            val cdataExt = ResXMLTree.CdataExt.parse(buffer)
+                            println(cdataExt)
+                        }
+                    }
                 }
             }
 
-            buffer.position(nextPos)
+            if (buffer.position() != nextPosition) {
+                println("WARNING: Expected position $nextPosition but got ${buffer.position()}")
+                buffer.position(nextPosition)
+            }
         }
         println("Finished parsing XML")
     }

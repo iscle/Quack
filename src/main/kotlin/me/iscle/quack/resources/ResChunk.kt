@@ -1,13 +1,6 @@
 package me.iscle.quack.resources
 
-import me.iscle.quack.getUInt
-import me.iscle.quack.getUShort
-import me.iscle.quack.readUInt
-import me.iscle.quack.readUShort
-import java.io.InputStream
-import java.nio.Buffer
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import me.iscle.quack.InputStreamByteBuffer
 
 // https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/libs/androidfw/include/androidfw/ResourceTypes.h
 
@@ -34,6 +27,8 @@ class ResChunk {
         }
 
         companion object {
+            const val SIZE = 8
+
             const val RES_NULL_TYPE: UShort = 0x0000u
             const val RES_STRING_POOL_TYPE: UShort = 0x0001u
             const val RES_TABLE_TYPE: UShort = 0x0002u
@@ -59,7 +54,7 @@ class ResChunk {
             const val RES_TABLE_OVERLAYABLE_POLICY_TYPE: UShort = 0x0205u
             const val RES_TABLE_STAGED_ALIAS_TYPE: UShort = 0x0206u
 
-            fun parse(buffer: ByteBuffer): Header {
+            fun parse(buffer: InputStreamByteBuffer): Header {
                 val type = buffer.getUShort()
                 val headerSize = buffer.getUShort()
                 val size = buffer.getUInt()

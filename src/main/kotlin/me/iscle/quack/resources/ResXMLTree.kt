@@ -1,10 +1,6 @@
 package me.iscle.quack.resources
 
-import me.iscle.quack.*
-import java.io.InputStream
-import java.nio.Buffer
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import me.iscle.quack.InputStreamByteBuffer
 
 class ResXMLTree {
 
@@ -19,7 +15,7 @@ class ResXMLTree {
         val header: ResChunk.Header,
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): Header {
+            fun parse(buffer: InputStreamByteBuffer): Header {
                 val header = ResChunk.Header.parse(buffer)
                 return Header(header)
             }
@@ -40,7 +36,7 @@ class ResXMLTree {
         val comment: Int, // int32_t
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): Node {
+            fun parse(buffer: InputStreamByteBuffer): Node {
                 val header = ResChunk.Header.parse(buffer)
                 val lineNumber = buffer.getUInt()
                 val comment = buffer.getInt()
@@ -57,7 +53,7 @@ class ResXMLTree {
         val typedData: Res.Value,
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): CdataExt {
+            fun parse(buffer: InputStreamByteBuffer): CdataExt {
                 val data = ResStringPool.Ref.parse(buffer)
                 val typedData = Res.Value.parse(buffer)
                 return CdataExt(data, typedData)
@@ -73,7 +69,7 @@ class ResXMLTree {
         val uri: ResStringPool.Ref,
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): NamespaceExt {
+            fun parse(buffer: InputStreamByteBuffer): NamespaceExt {
                 val prefix = ResStringPool.Ref.parse(buffer)
                 val uri = ResStringPool.Ref.parse(buffer)
                 return NamespaceExt(prefix, uri)
@@ -90,7 +86,7 @@ class ResXMLTree {
         val name: ResStringPool.Ref,
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): EndElementExt {
+            fun parse(buffer: InputStreamByteBuffer): EndElementExt {
                 val ns = ResStringPool.Ref.parse(buffer)
                 val name = ResStringPool.Ref.parse(buffer)
                 return EndElementExt(ns, name)
@@ -127,7 +123,7 @@ class ResXMLTree {
         val styleIndex: UShort,
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): AttrExt {
+            fun parse(buffer: InputStreamByteBuffer): AttrExt {
                 val ns = ResStringPool.Ref.parse(buffer)
                 val name = ResStringPool.Ref.parse(buffer)
                 val attributeStart = buffer.getUShort()
@@ -155,7 +151,7 @@ class ResXMLTree {
         val typedValue: Res.Value,
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): Attribute {
+            fun parse(buffer: InputStreamByteBuffer): Attribute {
                 val ns = ResStringPool.Ref.parse(buffer)
                 val name = ResStringPool.Ref.parse(buffer)
                 val rawValue = ResStringPool.Ref.parse(buffer)

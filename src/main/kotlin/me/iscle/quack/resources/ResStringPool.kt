@@ -1,10 +1,6 @@
 package me.iscle.quack.resources
 
-import me.iscle.quack.getUInt
-import me.iscle.quack.readUInt
-import java.io.InputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import me.iscle.quack.InputStreamByteBuffer
 
 class ResStringPool {
 
@@ -15,7 +11,7 @@ class ResStringPool {
         val index: UInt, // uint32_t
     ) {
         companion object {
-            fun parse(buffer: ByteBuffer): Ref {
+            fun parse(buffer: InputStreamByteBuffer): Ref {
                 val index = buffer.getUInt()
                 return Ref(index)
             }
@@ -49,12 +45,12 @@ class ResStringPool {
         companion object {
             // If set, the string index is sorted by the string values (based
             // on strcmp16()).
-            const val SORTED_FLAG = 1 shl 0
+            val SORTED_FLAG = 1u shl 0
 
             // String pool is encoded in UTF-8
-            const val UTF8_FLAG = 1 shl 8
+            val UTF8_FLAG = 1u shl 8
 
-            fun parse(buffer: ByteBuffer): Header {
+            fun parse(buffer: InputStreamByteBuffer): Header {
                 val header = ResChunk.Header.parse(buffer)
                 val stringCount = buffer.getUInt()
                 val styleCount = buffer.getUInt()
@@ -79,7 +75,7 @@ class ResStringPool {
         companion object {
             const val END = 0xFFFFFFFF
 
-            fun parse(buffer: ByteBuffer): Span {
+            fun parse(buffer: InputStreamByteBuffer): Span {
                 val name = Ref.parse(buffer)
                 val firstChar = buffer.getUInt()
                 val lastChar = buffer.getUInt()
