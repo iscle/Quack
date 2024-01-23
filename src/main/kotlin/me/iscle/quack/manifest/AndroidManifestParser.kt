@@ -10,8 +10,12 @@ import javax.xml.parsers.DocumentBuilderFactory
 // https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/tools/aapt2/
 
 class AndroidManifestParser {
+    fun parseToString(inputStream: InputStream): String {
+        val parsedXml = BinaryXmlResourceParser(inputStream).parse()
+        return parsedXml
+    }
     fun parse(inputStream: InputStream): ParsedAndroidManifest? {
-        BinaryXmlResourceParser().parse(inputStream)
+        val parsedXml = BinaryXmlResourceParser(inputStream).parse()
         return null
         val manifest = inputStream.readAllBytes().decodeToString()
         println(manifest)

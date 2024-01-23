@@ -101,6 +101,11 @@ class InputStreamByteBuffer(
         buffer.position(buffer.position() + array.size * 4)
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun get(array: UIntArray) {
+        get(array.asIntArray())
+    }
+
     fun getUInt(): UInt {
         requireBytes(4)
         return buffer.int.toUInt()
@@ -120,5 +125,33 @@ class InputStreamByteBuffer(
     fun getULong(): ULong {
         requireBytes(8)
         return buffer.long.toULong()
+    }
+
+    fun getUtf8String(
+        length: Int,
+        consumeNullTerminator: Boolean,
+    ): String {
+        val buf = ByteArray(length)
+        get(buf)
+        if (consumeNullTerminator) {
+            getByte()
+        }
+        return String(buf, Charsets.UTF_8)
+    }
+
+    fun getUtf16String(
+        length: Int,
+        consumeNullTerminator: Boolean,
+    ): String {
+        val buf = ByteArray(length * 2)
+        get(buf)
+        if (consumeNullTerminator) {
+            getShort()
+        }
+        return when (buffer.order()) {
+            ByteOrder.LITTLE_ENDIAN -> String(buf, Charsets.UTF_16LE)
+            ByteOrder.BIG_ENDIAN -> String(buf, Charsets.UTF_16BE)
+            else -> throw IllegalArgumentException("Unsupported byte order: ${buffer.order()}")
+        }
     }
 }

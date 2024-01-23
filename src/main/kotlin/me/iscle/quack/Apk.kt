@@ -21,6 +21,9 @@ class Apk(
     var manifest: ParsedAndroidManifest? = null
         private set
 
+    var stringManifest: String? = null
+        private set
+
     companion object {
         fun isValid(file: File): Boolean {
             return try {
@@ -37,7 +40,9 @@ class Apk(
             val manifestEntry = zipFile.getEntry("AndroidManifest.xml")
             if (manifestEntry != null) {
                 manifest = zipFile.getInputStream(manifestEntry).use {
-                    AndroidManifestParser().parse(it)
+//                    AndroidManifestParser().parse(it)
+                    stringManifest = AndroidManifestParser().parseToString(it)
+                    null
                 }
             }
 

@@ -69,7 +69,9 @@ fun main(args: Array<String>) {
 
     application {
         var closeRequested by remember { mutableStateOf(false) }
-        var openedFiles = remember { mutableStateListOf<File>() }
+        var openedFiles = remember { mutableStateListOf<File>(
+            File("/home/iscle/Downloads/Adif_2.0.4_Apkpure.apk"),
+        ) }
 
         var showWelcomeWindow by remember { mutableStateOf(true) }
         if (showWelcomeWindow) {

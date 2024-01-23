@@ -10,15 +10,20 @@ import org.fife.ui.rtextarea.RTextScrollPane
 @Composable
 fun RSyntaxScrollableTextArea(
     modifier: Modifier = Modifier,
+    text: String = "",
 ) {
     SwingPanel(
         factory = {
             val textArea = RSyntaxTextArea().apply {
                 syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_XML
+                isEditable = false
             }
 
             RTextScrollPane(textArea)
         },
         modifier = modifier,
+        update = {
+            it.textArea.text = text
+        }
     )
 }

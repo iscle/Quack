@@ -49,7 +49,7 @@ fun InputStream.readUInt(
     }
 }
 
-fun InputStream.readUtf16String(
+fun InputStream.getUtf16String(
     byteOrder: ByteOrder = ByteOrder.nativeOrder(),
 ): String {
     // read until \0

@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.iscle.quack.component.RSyntaxScrollableTextArea
 import java.io.File
 
 @OptIn(ExperimentalStdlibApi::class)
@@ -42,7 +44,9 @@ fun OpenedFileWindow(
         } else {
             Column {
                 Row(
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     var sha256 by remember { mutableStateOf("") }
                     LaunchedEffect(file) {
@@ -81,6 +85,11 @@ fun OpenedFileWindow(
                         )
                     }
                 }
+
+                RSyntaxScrollableTextArea(
+                    modifier = Modifier.fillMaxSize(),
+                    text = apk.stringManifest ?: "",
+                )
             }
         }
     }
