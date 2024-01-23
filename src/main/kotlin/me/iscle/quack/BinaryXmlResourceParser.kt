@@ -1,10 +1,10 @@
 package me.iscle.quack
 
+import me.iscle.quack.resources.Res
 import me.iscle.quack.resources.ResChunk
 import me.iscle.quack.resources.ResStringPool
 import me.iscle.quack.resources.ResXMLTree
 import org.slf4j.LoggerFactory
-import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.InputStream
 import java.io.StringWriter
@@ -161,9 +161,39 @@ class BinaryXmlResourceParser(
                     val attr = ResXMLTree.Attribute.parse(buffer)
                     val attrNs = getString(attr.ns.index.toInt())
                     val attrName = getString(attr.name.index.toInt())
-                    val attrRawValue = getString(attr.rawValue.index.toInt())
+                    var attrRawValue = getString(attr.rawValue.index.toInt())
                     if (attrRawValue == null) {
-                        // We have no interest in attributes without a value
+                        val typedDataType = attr.typedValue.dataType
+                        val typedData = attr.typedValue.data
+                        attrRawValue = when (typedDataType) {
+                            Res.TYPE_NULL -> null
+                            Res.TYPE_REFERENCE -> if (typedData == 0u) {
+                                "@null"
+                            } else {
+                                "0x${typedData.toString(16)}"
+                            }
+                            Res.TYPE_ATTRIBUTE -> "?unknown_attr_ref:${typedData.toString(16)}"
+                            Res.TYPE_STRING -> getString(typedData.toInt())
+                            Res.TYPE_FLOAT -> Float.fromBits(typedData.toInt()).toString()
+                            Res.TYPE_DIMENSION -> "QUACK_UNIMPLEMENTED"
+                            Res.TYPE_FRACTION -> "QUACK_UNIMPLEMENTED"
+                            Res.TYPE_DYNAMIC_REFERENCE -> "?QUACK_UNIMPLEMENTED:${typedData.toString(16)}"
+                            Res.TYPE_DYNAMIC_ATTRIBUTE -> "QUACK_UNIMPLEMENTED"
+                            Res.TYPE_INT_DEC -> typedData.toString()
+                            Res.TYPE_INT_HEX -> "0x${typedData.toString(16)}"
+                            Res.TYPE_INT_BOOLEAN -> if (typedData == 0u) "false" else "true"
+                            Res.TYPE_INT_COLOR_ARGB8 -> String.format("#%08x", typedData)
+                            Res.TYPE_INT_COLOR_RGB8 -> String.format("#%06x", typedData and 0xFFFFFFu)
+                            Res.TYPE_INT_COLOR_ARGB4 -> String.format("#%04x", typedData and 0xFFFFu)
+                            Res.TYPE_INT_COLOR_RGB4 -> String.format("#%03x", typedData and 0xFFFu)
+                            else -> {
+                                logger.warn("Unknown attribute type: ${typedDataType}")
+                                null
+                            }
+                        }
+                    }
+                    if (attrRawValue == null) {
+                        logger.warn("Attribute $attrNs:$attrName has no value")
                         continue
                     }
 
@@ -189,7 +219,7 @@ class BinaryXmlResourceParser(
             ResChunk.Header.RES_XML_CDATA_TYPE -> {
                 val cdataExt = ResXMLTree.CdataExt.parse(buffer)
                 val data = getString(cdataExt.data.index.toInt())
-                logger.debug("CDATA: $data")
+                logger.warn("CDATA not implemented")
             }
             else -> {
                 logger.warn("Unknown ResXMLTree node type: ${node.header.type}")
