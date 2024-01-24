@@ -1,4 +1,4 @@
-package me.iscle.quack
+package me.iscle.quack.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import me.iscle.quack.component.LoadFileDialog
-import me.iscle.quack.component.RSyntaxScrollableTextArea
+import me.iscle.quack.ui.component.LoadFileDialog
+import me.iscle.quack.ui.component.RSyntaxScrollableTextArea
 import java.io.File
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -91,10 +91,6 @@ fun WelcomeWindow(
                     }
                 }
             }
-
-            RSyntaxScrollableTextArea(
-                modifier = Modifier.fillMaxSize()
-            )
         }
 
         if (showFilePicker) {

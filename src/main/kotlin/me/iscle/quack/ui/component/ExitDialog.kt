@@ -1,4 +1,4 @@
-package me.iscle.quack.component
+package me.iscle.quack.ui.component
 
 import me.iscle.quack.Localization
 import androidx.compose.foundation.layout.Arrangement

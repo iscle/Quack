@@ -1,22 +1,21 @@
-package me.iscle.quack
+package me.iscle.quack.resources
 
-import me.iscle.quack.resources.Res
-import me.iscle.quack.resources.ResChunk
-import me.iscle.quack.resources.ResStringPool
-import me.iscle.quack.resources.ResXMLTree
+import me.iscle.quack.InputStreamByteBuffer
 import org.slf4j.LoggerFactory
+import org.w3c.dom.Document
 import org.w3c.dom.Node
 import java.io.InputStream
 import java.io.StringWriter
 import java.nio.ByteOrder
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
 class BinaryXmlResourceParser(
     input: InputStream,
-) {
+): XmlResourceParser {
     private val logger = LoggerFactory.getLogger(BinaryXmlResourceParser::class.java)
 
     private val buffer = InputStreamByteBuffer(
@@ -36,8 +35,8 @@ class BinaryXmlResourceParser(
 
     private var parsed = false
 
-    fun parse(): String {
-        if (parsed) throw Exception("Already parsed")
+    override fun parse() {
+        if (parsed) return
         parsed = true
 
         val header = ResChunk.Header.parse(buffer)
@@ -64,13 +63,26 @@ class BinaryXmlResourceParser(
             }
         }
         logger.info("Finished parsing binary XML resource file")
+    }
 
-        val transformerFactory = TransformerFactory.newInstance();
-        val transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty("indent", "yes");
-        val writer = StringWriter();
-        transformer.transform(DOMSource(document), StreamResult(writer));
+    override fun getAsString(
+        prettyPrint: Boolean,
+    ): String {
+        parse()
+
+        val transformerFactory = TransformerFactory.newInstance()
+        val transformer = transformerFactory.newTransformer()
+        transformer.setOutputProperty(OutputKeys.INDENT, if (prettyPrint) "yes" else "no")
+
+        val writer = StringWriter()
+        transformer.transform(DOMSource(document), StreamResult(writer))
         return writer.toString()
+    }
+
+    override fun getAsDocument(): Document {
+        parse()
+
+        return document
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -85,28 +97,38 @@ class BinaryXmlResourceParser(
         val styleIndices = UIntArray(header.styleCount.toInt())
         buffer.get(styleIndices) // not used for now, but we might need it in the future
 
-        assert(buffer.position() == startPosition + header.stringsStart.toInt())
-
-        val isUtf8 = header.flags and ResStringPool.Header.UTF8_FLAG == ResStringPool.Header.UTF8_FLAG
-        if (isUtf8) {
-            for (i in 0 until header.stringCount.toInt()) {
-                val stringLength = buffer.getUShort()
-                val string = buffer.getUtf8String(stringLength.toInt(), true)
-                strings.add(string)
+        if (header.stringCount != 0u) {
+            if (buffer.position() != startPosition + header.stringsStart.toInt()) {
+                logger.warn("Expected position ${startPosition + header.stringsStart.toInt()} but got ${buffer.position()}")
+                buffer.position(startPosition + header.stringsStart.toInt())
             }
-        } else {
-            for (i in 0 until header.stringCount.toInt()) {
-                val stringLength = buffer.getUShort()
-                val string = buffer.getUtf16String(stringLength.toInt(), true)
-                strings.add(string)
+
+            val isUtf8 = header.flags and ResStringPool.Header.UTF8_FLAG == ResStringPool.Header.UTF8_FLAG
+            if (isUtf8) {
+                for (i in 0 until header.stringCount.toInt()) {
+                    val stringLength = buffer.getUShort()
+                    val string = buffer.getUtf8String(stringLength.toInt(), true)
+                    strings.add(string)
+                }
+            } else {
+                for (i in 0 until header.stringCount.toInt()) {
+                    val stringLength = buffer.getUShort()
+                    val string = buffer.getUtf16String(stringLength.toInt(), true)
+                    strings.add(string)
+                }
             }
         }
 
-        assert(buffer.position() == startPosition + header.stylesStart.toInt())
+        if (header.styleCount != 0u) {
+            if (buffer.position() != startPosition + header.stylesStart.toInt()) {
+                logger.warn("Expected position ${startPosition + header.stylesStart.toInt()} but got ${buffer.position()}")
+                buffer.position(startPosition + header.stylesStart.toInt())
+            }
 
-        for (i in 0 until header.styleCount.toInt()) {
-            val style = buffer.getUInt()
-            styles.add(style)
+            for (i in 0 until header.styleCount.toInt()) {
+                val style = buffer.getUInt()
+                styles.add(style)
+            }
         }
 
         logger.info("Parsed string pool with ${header.stringCount} strings and ${header.styleCount} styles")
@@ -150,10 +172,6 @@ class BinaryXmlResourceParser(
                 val attrExt = ResXMLTree.AttrExt.parse(buffer)
                 val ns = getString(attrExt.ns.index.toInt())
                 val name = getString(attrExt.name.index.toInt())
-
-                if (name == "uses-sdk") {
-                    logger.debug("uses-sdk")
-                }
 
                 val element = document.createElementNS(ns, name)
 

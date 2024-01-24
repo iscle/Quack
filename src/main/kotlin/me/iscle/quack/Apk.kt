@@ -4,8 +4,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.ResourceLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.iscle.quack.manifest.AndroidManifest
 import me.iscle.quack.manifest.AndroidManifestParser
-import me.iscle.quack.manifest.ParsedAndroidManifest
 import org.jetbrains.skia.Image
 import java.io.File
 import java.util.zip.ZipFile
@@ -18,7 +18,7 @@ class Apk(
     private val file: File,
 ) {
     private val zipFile = ZipFile(file)
-    var manifest: ParsedAndroidManifest? = null
+    var manifest: AndroidManifest? = null
         private set
 
     var stringManifest: String? = null
@@ -39,14 +39,20 @@ class Apk(
             // Load manifest
             val manifestEntry = zipFile.getEntry("AndroidManifest.xml")
             if (manifestEntry != null) {
-                manifest = zipFile.getInputStream(manifestEntry).use {
-//                    AndroidManifestParser().parse(it)
-                    stringManifest = AndroidManifestParser().parseToString(it)
-                    null
+                zipFile.getInputStream(manifestEntry).use {
+                    val parser = AndroidManifestParser(it)
+                    manifest = parser.getAsAndroidManifest()
+                    stringManifest = parser.getAsString()
                 }
             }
 
             // TODO: Load other stuff
+//            val classesDex = zipFile.getEntry("classes.dex")
+//            if (classesDex != null) {
+//                zipFile.getInputStream(classesDex).use {
+//                    DexParser(it).parse()
+//                }
+//            }
         }
     }
 

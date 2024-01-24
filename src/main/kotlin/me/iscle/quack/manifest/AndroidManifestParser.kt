@@ -1,29 +1,21 @@
 package me.iscle.quack.manifest
 
-import me.iscle.quack.BinaryXmlResourceParser
+import me.iscle.quack.resources.XmlResourceParser
+import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.InputStream
-import javax.xml.parsers.DocumentBuilderFactory
 
 // https://developer.android.com/guide/topics/manifest/manifest-intro
 // https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/tools/aapt2/
 
-class AndroidManifestParser {
-    fun parseToString(inputStream: InputStream): String {
-        val parsedXml = BinaryXmlResourceParser(inputStream).parse()
-        return parsedXml
-    }
-    fun parse(inputStream: InputStream): ParsedAndroidManifest? {
-        val parsedXml = BinaryXmlResourceParser(inputStream).parse()
-        return null
-        val manifest = inputStream.readAllBytes().decodeToString()
-        println(manifest)
-        return null
-        val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        val document = builder.parse(inputStream).apply {
-            documentElement.normalize()
-        }
+class AndroidManifestParser(
+    inputStream: InputStream,
+) : XmlResourceParser {
+    private val parser = XmlResourceParser.fromInputStream(inputStream)
+
+    fun getAsAndroidManifest(): AndroidManifest? {
+        val document = getAsDocument()
 
         val manifestElement = document.getElementsByTagName("manifest").item(0)
         if (manifestElement == null) {
@@ -80,10 +72,10 @@ class AndroidManifestParser {
 
                 activities.add(
                     ManifestActivity(
-                    name = activityName,
-                    permission = permission,
-                    intentFilters = intentFilters,
-                )
+                        name = activityName,
+                        permission = permission,
+                        intentFilters = intentFilters,
+                    )
                 )
             } else {
                 println("Invalid activity element at index $i")
@@ -101,10 +93,10 @@ class AndroidManifestParser {
 
                 services.add(
                     ManifestService(
-                    name = serviceName,
-                    permission = permission,
-                    intentFilters = intentFilters,
-                )
+                        name = serviceName,
+                        permission = permission,
+                        intentFilters = intentFilters,
+                    )
                 )
             } else {
                 println("Invalid service element at index $i")
@@ -122,17 +114,17 @@ class AndroidManifestParser {
 
                 receivers.add(
                     ManifestReceiver(
-                    name = receiverName,
-                    permission = permission,
-                    intentFilters = intentFilters,
-                )
+                        name = receiverName,
+                        permission = permission,
+                        intentFilters = intentFilters,
+                    )
                 )
             } else {
                 println("Invalid receiver element at index $i")
             }
         }
 
-        return ParsedAndroidManifest(
+        return AndroidManifest(
             packageName = packageName,
             versionCode = versionCode,
             versionName = versionName,
@@ -142,18 +134,6 @@ class AndroidManifestParser {
             services = services,
             receivers = receivers,
         )
-    }
-
-    private fun parsePlainText(): ParsedAndroidManifest {
-        TODO()
-    }
-
-    private fun parseBinary(): ParsedAndroidManifest {
-        TODO()
-    }
-
-    private fun parseProto(): ParsedAndroidManifest {
-        TODO()
     }
 
     private fun getApplicationSubclass(packageName: String, application: Node): String? {
@@ -203,5 +183,17 @@ class AndroidManifestParser {
         }
 
         return intentFilters
+    }
+
+    override fun parse() {
+        parser.parse()
+    }
+
+    override fun getAsString(prettyPrint: Boolean): String {
+        return parser.getAsString(prettyPrint)
+    }
+
+    override fun getAsDocument(): Document {
+        return parser.getAsDocument()
     }
 }

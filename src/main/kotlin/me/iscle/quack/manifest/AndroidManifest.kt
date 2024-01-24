@@ -1,6 +1,6 @@
 package me.iscle.quack.manifest
 
-data class ParsedAndroidManifest(
+data class AndroidManifest(
     val packageName: String,
     val versionCode: String,
     val versionName: String,

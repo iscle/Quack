@@ -1,4 +1,4 @@
-package me.iscle.quack
+package me.iscle.quack.ui
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface

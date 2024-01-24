@@ -1,4 +1,4 @@
-package me.iscle.quack.component
+package me.iscle.quack.ui.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.AwtWindow

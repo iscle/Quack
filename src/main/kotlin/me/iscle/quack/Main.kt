@@ -12,8 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.application
 import com.beust.jcommander.JCommander
-import me.iscle.quack.component.ExitDialog
-import me.iscle.quack.component.LoadFileDialog
+import me.iscle.quack.ui.component.ExitDialog
+import me.iscle.quack.ui.component.LoadFileDialog
+import me.iscle.quack.ui.ApkSummaryWindow
+import me.iscle.quack.ui.WelcomeWindow
 import java.io.File
 
 @Composable
@@ -88,7 +90,7 @@ fun main(args: Array<String>) {
 
         for (file in openedFiles) {
             key(file) {
-                OpenedFileWindow(
+                ApkSummaryWindow(
                     onCloseRequest = {
                         openedFiles.remove(file)
                         if (!showWelcomeWindow && openedFiles.isEmpty()) exitApplication()

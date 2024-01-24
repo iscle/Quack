@@ -23,6 +23,12 @@ class InputStreamByteBuffer(
         readBytes(bytesToRead)
     }
 
+    private fun requireLimit(count: Int) {
+        if (buffer.limit() < count) {
+            requireBytes(count - buffer.limit())
+        }
+    }
+
     fun readBytes(count: Int) {
         if (buffer.capacity() - buffer.limit() < count) {
             var newCapacity = buffer.capacity()
@@ -36,9 +42,14 @@ class InputStreamByteBuffer(
             buffer = newBuffer
         }
 
-        val bytesRead = input.read(buffer.array(), buffer.limit(), count)
-        if (bytesRead != count) {
-            throw Exception("Failed to read $count bytes")
+        var totalBytesRead = 0
+        while (true) {
+            val bytesRead = input.read(buffer.array(), buffer.limit(), count - totalBytesRead)
+            if (bytesRead == -1) {
+                throw Exception("Failed to read $count bytes")
+            }
+            totalBytesRead += bytesRead
+            if (totalBytesRead == count) break
         }
         buffer.limit(buffer.limit() + count)
     }
@@ -48,6 +59,7 @@ class InputStreamByteBuffer(
     }
 
     fun position(position: Int) {
+        requireLimit(position)
         buffer.position(position)
     }
 

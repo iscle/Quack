@@ -1,9 +1,12 @@
-package me.iscle.quack
+package me.iscle.quack.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,28 +14,32 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.iscle.quack.component.RSyntaxScrollableTextArea
+import me.iscle.quack.Apk
+import me.iscle.quack.Localization
+import me.iscle.quack.ui.component.RSyntaxScrollableTextArea
+import me.iscle.quack.sha256
 import java.io.File
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
-fun OpenedFileWindow(
+fun ApkSummaryWindow(
     onCloseRequest: () -> Unit,
     file: File,
 ) {
-    val apk = remember(file) { Apk(file) }
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(apk) {
-        isLoading = true
-        apk.load()
-        isLoading = false
-    }
-
     QuackWindow(
         onCloseRequest = onCloseRequest,
         title = "${file.name} - ${Localization.get("app_name")}",
     ) {
+        val apk = remember(file) { Apk(file) }
+        var isLoading by remember { mutableStateOf(true) }
+        val codeViewWindowStates = remember { mutableStateListOf<CodeViewWindowState>() }
+
+        LaunchedEffect(apk) {
+            isLoading = true
+            apk.load()
+            isLoading = false
+        }
+
         if (isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -86,9 +93,40 @@ fun OpenedFileWindow(
                     }
                 }
 
+                Divider(
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
+                    Button(
+                        onClick = {
+                            codeViewWindowStates.add(
+                                CodeViewWindowState(
+                                    title = "AndroidManifest.xml - ${file.name} - ${Localization.get("app_name")}",
+                                    code = apk.stringManifest ?: "Error loading manifest",
+                                )
+                            )
+                        },
+                    ) {
+                        Text("AndroidManifest.xml")
+                    }
+                }
+
                 RSyntaxScrollableTextArea(
                     modifier = Modifier.fillMaxSize(),
                     text = apk.stringManifest ?: "",
+                )
+            }
+        }
+
+        codeViewWindowStates.forEach { state ->
+            key(state) {
+                CodeViewWindow(
+                    state = state,
+                    onCloseRequest = { codeViewWindowStates.remove(state) },
                 )
             }
         }
