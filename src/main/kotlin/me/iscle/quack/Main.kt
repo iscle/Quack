@@ -64,6 +64,35 @@ private fun parseQuackArgs(args: Array<String>): QuackArgs {
 }
 
 fun main(args: Array<String>) {
+    if (true) {
+        val jadxHelper = JadxHelper(File("/home/iscle/Downloads/Adif_2.0.4_Apkpure.apk"))
+        jadxHelper.load()
+        jadxHelper.decompile()
+        // shared preferences
+        val calls = jadxHelper.findMethodCalls("android.content.SharedPreferences.getString")
+        println("Calls to SharedPreferences.getString:")
+        calls.forEach {
+            println("  ${it.methodInfo.fullName}")
+            val code = it.parentClass.code
+            println("code: $code")
+        }
+
+        // shared preferences get boolean
+        val calls2 = jadxHelper.findMethodCalls("android.content.SharedPreferences.getBoolean")
+        println("Calls to SharedPreferences.getBoolean:")
+        calls2.forEach {
+            println("  ${it.methodInfo.fullName}")
+        }
+
+        // shared preferences get int
+        val calls3 = jadxHelper.findMethodCalls("android.content.SharedPreferences.getInt")
+        println("Calls to SharedPreferences.getInt:")
+        calls3.forEach {
+            println("  ${it.methodInfo.fullName}")
+        }
+        return
+    }
+
     val quackArgs = parseQuackArgs(args)
 
     Settings.init(quackArgs)

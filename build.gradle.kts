@@ -12,6 +12,7 @@ repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {
@@ -27,7 +28,29 @@ dependencies {
     implementation("org.jcommander:jcommander:1.83")
     implementation("com.fifesoft:rsyntaxtextarea:3.3.4")
     implementation("com.squareup.moshi:moshi:1.14.0")
-    implementation("io.github.skylot:jadx-core:1.4.7")
+
+    implementation("io.github.skylot:jadx-core:1.5.0-SNAPSHOT") {
+        isChanging = true
+    }
+    implementation("io.github.skylot:jadx-dex-input:1.5.0-SNAPSHOT") {
+        isChanging = true
+    }
+    implementation("io.github.skylot:jadx-java-input:1.5.0-SNAPSHOT") {
+        isChanging = true
+    }
+    implementation("io.github.skylot:jadx-java-convert:1.5.0-SNAPSHOT") {
+        isChanging = true
+    }
+    implementation("io.github.skylot:jadx-smali-input:1.5.0-SNAPSHOT") {
+        isChanging = true
+    }
+    implementation("io.github.skylot:jadx-raung-input:1.5.0-SNAPSHOT") {
+        isChanging = true
+    }
+    implementation("io.github.skylot:jadx-plugins-tools:1.5.0-SNAPSHOT") {
+        isChanging = true
+    }
+
     implementation("org.benf:cfr:0.152")
 }
 
