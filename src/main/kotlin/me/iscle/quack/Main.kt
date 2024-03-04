@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.application
 import com.beust.jcommander.JCommander
+import me.iscle.quack.jadx.JadxHelper
 import me.iscle.quack.ui.component.ExitDialog
 import me.iscle.quack.ui.component.LoadFileDialog
 import me.iscle.quack.ui.ApkSummaryWindow
@@ -65,7 +66,7 @@ private fun parseQuackArgs(args: Array<String>): QuackArgs {
 
 fun main(args: Array<String>) {
     if (true) {
-        val jadxHelper = JadxHelper(File("/home/iscle/Downloads/Adif_2.0.4_Apkpure.apk"))
+        val jadxHelper = JadxHelper(File("/Users/iscle/Downloads/app-debug (1).apk"))
         jadxHelper.load()
         jadxHelper.decompile()
         // shared preferences

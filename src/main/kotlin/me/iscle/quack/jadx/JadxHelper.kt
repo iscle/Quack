@@ -1,4 +1,4 @@
-package me.iscle.quack
+package me.iscle.quack.jadx
 
 import jadx.api.JadxArgs
 import jadx.api.JadxDecompiler
@@ -27,10 +27,27 @@ class JadxHelper(
 
         addCustomPassAfter(ProcessInstructionsVisitor::class.java, object : AbstractVisitor() {
             override fun visit(mth: MethodNode) {
-                val calls = mutableListOf<MethodInfo>()
+                val calls = mutableListOf<JadxCall>()
                 mth.instructions?.forEach {
                     if (it is InvokeNode) {
-                        calls.add(it.callMth)
+                        val call = JadxCall(
+                            method = JadxMethod(
+                                name = it.callMth.name,
+                                argumentTypes = it.callMth.argumentsTypes.mapIndexedNotNull { index, argType ->
+                                    if (index == 0) null else argType.toString()
+                                },
+                            ),
+                            arguments = it.arguments.mapIndexedNotNull { index, insnArg ->
+                                    if (index == 0)
+                                        null
+                                    else
+                                        JadxCall.Argument(
+                                            type = insnArg.type.toString(),
+                                            value = insnArg.toString(),
+                                        )
+                            },
+                        )
+                        calls.add(call)
                     }
                 }
                 methodCalls.put(mth, calls)
